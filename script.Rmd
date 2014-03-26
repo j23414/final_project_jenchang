@@ -1,0 +1,111 @@
+STAT 585 Project
+========================================================
+Name: Jennifer Chang
+
+Date: March 24, 2014
+
+Topic: E coli Stress Effects
+-----------------------
+
+Questions of Interest:
+* Which genes have similar expression profiles among the different treatments?
+* Are genes with similar expression profiles located near each other in biological pathways?
+
+Motivation:
+
+Organisms are robust systems that will try to compensate for different types of environmental stress effects, adjusting the expression of genes and their protein products accordingly.  This project seeks to gain insight into what pathways are affected by each type of stress. The related pathways may give some idea on how the organism adapts to the environment.
+
+Data Available:
+* Expression data for 4495 genes in E. coli (microarray experiment) under different stressful conditions.
+  * From another student in my lab
+* KEGG pathways data kegg.jp
+
+First few lines of the data:
+
+    Name,Genome,Left,Right,Strand,Probes,C-1,C-2,C-N-1,C-N-2,CS1,CS2,HS1,HS2,N-1,N-2,OSMO1,OSMO2,OXI1,OXI2,PH1,PH2,SD1,SD2,UV1,UV2
+    thrL,NC_000913,189,254,0,3,879.1,5084.39,4546.09,4567.49,3675.77,5224.34,4478.29,5322.83,4964.07,3454.97,4531.38,5980.55,4280.31,4850.89,3877.28,4390.3,3610.96,5444.51,4576.56,5368.29
+    thrA,NC_000913,336,2798,0,39,5414.73,6690.3,6602.69,6916.61,5693,8130.07,7332.8,6655.32,6538.31,6087.38,7587.61,6557.46,6601.19,7295.16,8032.49,5096.85,5872.61,7340.37,5964.53,6941.64
+    thrB,NC_000913,2800,3732,0,16,4422.365,3607.435,4127.42,5510.8,3006.385,6201.945,5435.84,4829.43,4367.41,3465.7,4787.79,3764.09,4325.555,5197.31,4645.045,3809.18,3088.84,4003.335,3446.44,4755.96
+    thrC,NC_000913,3733,5019,0,26,4014.73,2041.11,1956.19,1931.73,2829.87,2325.45,1953.05,1575.68,1997.17,2260.375,1847.94,2194.68,1839.93,1744.595,2610.36,3306.395,2979.075,1716.985,2523.655,1791.38
+    yaaX,NC_000913,5233,5529,0,6,3513.195,6116.625,6815.13,6163.25,4903.8,6683.355,7913.935,7055.21,8745.9,4858.61,6504.795,5744.08,6892.02,7080.175,4930.425,7799.265,4315.725,8836.68,3821.76,6740.79
+    yaaA,NC_000913,5682,6458,1,11,4126.12,2774.2,3130.21,3034.67,3277.45,2993.66,3355.36,3390.82,2569.19,3783.69,3070.14,2838.48,3170.14,1797.61,3152.4,2820.47,3868.44,2551.58,4514.88,3082.76
+    
+Data Collection: how is it to be collected, collated, merged, processed
+
+<<<<<<< HEAD
+* Retrieve KEGG ids for each gene (html processing)
+* Retrieve KEGG paths for each gene using the KEGG ids (more html processing)
+* cluster genes based on similar expression profiles (R package, or maybe WGCNA package) and get strengths of association between genes
+* can use the strengths to create a spanning tree network of similarly expressed genes (perl code already available in my lab that I use for other research) This will be easier to look at than a complete graph.
+* visualize it using a graphing package (either R, gephi, or GUESS) and try to change node visualization based on which pathways genes belong to.
+* try to identify clusters of similarly visualized genes.
+
+Work so far:
+-----------
+Each gene (eg. thrA) is associated with a particular KEGG gene id.  In order to find the KEGG id, you can use the following website:
+
+* http://www.kegg.jp/dbget-bin/www_bfind_sub?max_hit=1000&dbkey=eco&mode=bfind&keywords=thrA
+    
+Replace the keywords=thrA with whichever gene you are searching for.  Currently I'm only searching the E coli pathways (dbkey=eco) because that is the organism where our expression data comes from.
+
+This gives you a html page of results.  I can parse the html to get the KEGG gene id and the gene description.
+
+    KEGG_id gene;description
+    eco:b4634 _aaaD;_pseudogene
+    eco:b0260 _mmuP;_CP4-6_prophage;_predicted_S-methylmethionine_transporter;_K03293_amino_acid_transporter,_AAT_family
+    eco:b0715 _abrB;_regulator_of_aidB_expression;_inner_membrane_protein;_K07120
+    eco:b0123 _cueO;_multicopper_oxidase_(laccase);_K14588_blue_copper_oxidase
+    eco:b0114 _aceE;_pyruvate_dehydrogenase,_decarboxylase_component_E1,_thiamin-binding_(EC:1.2.4.1);_K00163_pyruvate_dehydrogenase_E1_component_[EC:1.2.4.1]
+    eco:b0115 _aceF;_pyruvate_dehydrogenase,_dihydrolipoyltransacetylase_component_E2_(EC:2.3.1.12);_K00627_pyruvate_dehydrogenase_E2_component_(dihydrolipoamide_acetyltransferase)_[EC:2.3.1.12]
+    
+I completed this much last night, so I didn't have the data readily available beforehand.  I was using a perl curl script just because I'm more familiar with it. I can rewrite the section for R html processing. The perl script had a 3 sec delay between each query (so the website wouldn't cut me off because it thought I was a phishing attack).  However that meant that downloading 4495 html files at 3 second delays took around 3 hours. I let it run overnight. Afterwhich I needed to collect 4495 html files using the kegg ids to get the kegg pathways. This time I'm setting a 1 second delay.  But it will still take around an hour to collect. 
+    
+
+
+=======
+Load information from Twitter:
+```{r}
+# Connect to Twitter
+# Online Directions: http://thinktostart.wordpress.com/2013/05/22/twitter-authentification-with-r/
+library(RCurl)
+options(RCurlOptions=list(cainfo=system.file("CurlSSL", "cacert.pem",package="RCurl")))
+require(twitteR)
+reqURL<-"https://api.twitter.com/oauth/request_token"
+accessURL<-"https://api.twitter.com/oauth/access_token"
+authURL<-"https://api.twitter.com/oauth/authorize"
+consumerKey<-"7LTjhEJ19yEs5rsV5x60TA"
+consumerSecret<-"8YZc0wfGVvi5IOIsN795QxXubSnKNwiHH4C2xiWMPc"
+
+twitCred<-OAuthFactory$new(consumerKey=consumerKey,consumerSecret=consumerSecret, requestURL=reqURL, accessURL=accessURL, authURL=authURL)
+twitCred$handshake(cainfo=system.file("CurlSSL","cacert.pem",package="RCurl"))
+registerTwitterOAuth(twitCred)
+
+# work with Twitter Data
+rsTweets<-searchTwitter("#Olympics", n=500) # search twitter
+saveRDS(rsTweets, file="rsTweets.RData") # save search
+rsTweets<-readRDS("rsTweets.RData") # read in saved search
+str(rsTweets[[1]])
+
+rsTweets[[1]]$getText()
+rsTweets[[1]]$getScreenName()
+library(plyr)
+tweets.df=ldply(rsTweets,function(t) t$toDataFrame())
+names(tweets.df)
+head(tweets.df)
+head(tweets.df$text)
+head(tweets.df$screenName)
+```
+>>>>>>> 6ba8c4806ef42dc05287909410f1147d713d335e
+
+Shiny basic example
+```{r}
+library(shiny)
+runExample("01_hello")
+runExample()
+
+# Creating a Shiny app requires creating two files and putting it into a folder (e.g. shiny_app)
+# 1) ui.R (user interface)
+# 2) server.R
+
+runApp("shiny_app") # run the app by giving the folder name (and loc)
+```
