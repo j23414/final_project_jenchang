@@ -2,7 +2,7 @@ STAT 585 Project
 ========================================================
 Name: Jennifer Chang
 
-Date: March 24, 2014
+Date: March 26, 2014
 
 Topic: E coli Stress Effects
 -----------------------
