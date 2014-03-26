@@ -7,20 +7,22 @@ Date: March 24, 2014
 Topic: E coli Stress Effects
 -----------------------
 
-Questions of Interest:
-* Which genes have similar expression profiles among the different treatments?
-* Are genes with similar expression profiles located near each other in biological pathways?
-
-Motivation:
+**Motivation:**
 
 Organisms are robust systems that will try to compensate for different types of environmental stress effects, adjusting the expression of genes and their protein products accordingly.  This project seeks to gain insight into what pathways are affected by each type of stress. The related pathways may give some idea on how the organism adapts to the environment.
 
-Data Available:
+The model organism we're looking at is E coli.  The expression levels of 4495 genes were recorded under different stressful conditions. 
+
+**Questions of Interest:**
+* Which genes have similar expression profiles among the different treatments?
+* Are genes with similar expression profiles located near each other in biological pathways?
+
+**Data Available:**
 * Expression data for 4495 genes in E. coli (microarray experiment) under different stressful conditions.
   * From another student in my lab
-* KEGG pathways data kegg.jp
+* KEGG pathways data from kegg.jp
 
-First few lines of the data:
+First few lines of the data from lab:
 
     Name,Genome,Left,Right,Strand,Probes,C-1,C-2,C-N-1,C-N-2,CS1,CS2,HS1,HS2,N-1,N-2,OSMO1,OSMO2,OXI1,OXI2,PH1,PH2,SD1,SD2,UV1,UV2
     thrL,NC_000913,189,254,0,3,879.1,5084.39,4546.09,4567.49,3675.77,5224.34,4478.29,5322.83,4964.07,3454.97,4531.38,5980.55,4280.31,4850.89,3877.28,4390.3,3610.96,5444.51,4576.56,5368.29
@@ -30,7 +32,7 @@ First few lines of the data:
     yaaX,NC_000913,5233,5529,0,6,3513.195,6116.625,6815.13,6163.25,4903.8,6683.355,7913.935,7055.21,8745.9,4858.61,6504.795,5744.08,6892.02,7080.175,4930.425,7799.265,4315.725,8836.68,3821.76,6740.79
     yaaA,NC_000913,5682,6458,1,11,4126.12,2774.2,3130.21,3034.67,3277.45,2993.66,3355.36,3390.82,2569.19,3783.69,3070.14,2838.48,3170.14,1797.61,3152.4,2820.47,3868.44,2551.58,4514.88,3082.76
     
-Data Collection: how is it to be collected, collated, merged, processed
+**Data Collection: how is it to be collected, collated, merged, processed**
 
 * Retrieve KEGG ids for each gene (html processing)
 * Retrieve KEGG paths for each gene using the KEGG ids (more html processing)
@@ -41,7 +43,7 @@ Data Collection: how is it to be collected, collated, merged, processed
 
 Work so far:
 -----------
-Each gene (eg. thrA) is associated with a particular KEGG gene id.  In order to find the KEGG id, you can use the following website:
+Each gene (eg. thrA) is associated with a particular KEGG gene id (eco:b0002).  In order to find the KEGG id, you can use the following website:
 
 * http://www.kegg.jp/dbget-bin/www_bfind_sub?max_hit=1000&dbkey=eco&mode=bfind&keywords=thrA
     
@@ -57,8 +59,13 @@ This gives you a html page of results.  I can parse the html to get the KEGG gen
     eco:b0114 _aceE;_pyruvate_dehydrogenase,_decarboxylase_component_E1,_thiamin-binding_(EC:1.2.4.1);_K00163_pyruvate_dehydrogenase_E1_component_[EC:1.2.4.1]
     eco:b0115 _aceF;_pyruvate_dehydrogenase,_dihydrolipoyltransacetylase_component_E2_(EC:2.3.1.12);_K00627_pyruvate_dehydrogenase_E2_component_(dihydrolipoamide_acetyltransferase)_[EC:2.3.1.12]
     
-I completed this much last night, so I didn't have the data readily available beforehand.  I was using a perl curl script just because I'm more familiar with it. I can rewrite the section for R html processing. The perl script had a 3 sec delay between each query (so the website wouldn't cut me off because it thought I was a phishing attack).  However that meant that downloading 4495 html files at 3 second delays took around 3 hours. I let it run overnight. Afterwhich I needed to collect 4495 html files using the kegg ids to get the kegg pathways. This time I'm setting a 1 second delay.  But it will still take around an hour to collect. 
-    
+I completed this much last night, so I didn't have the data readily available beforehand.  I was using a perl curl script just because I'm more familiar with it. I can rewrite the section for R html processing. The perl script had a 3 sec delay between each query (so the website will not cut me off because it thinks I'm a denial-of-service attack).  However that means that downloading 4495 html files at 3 second delays took around 3 hours. I let it run overnight. After which I needed to collect 4495 html more files using the kegg ids to get the kegg pathways. This time I'm setting a 1 second delay.  But it will still take around an hour to collect. 
+
+The pathways data can be collected from the following website:
+
+* http://www.kegg.jp/dbget-bin/www_bget?eco:b0002
+
+Where "eco:b0002" can be replaced by whichever KEGG gene id you're looking at.  Then pull out the Pathways entry in the table. The Pathways entry contains the KEGG pathway id and the Pathway name.
 
 <!-- comment
 #=======
