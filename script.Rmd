@@ -32,7 +32,6 @@ First few lines of the data:
     
 Data Collection: how is it to be collected, collated, merged, processed
 
-<<<<<<< HEAD
 * Retrieve KEGG ids for each gene (html processing)
 * Retrieve KEGG paths for each gene using the KEGG ids (more html processing)
 * cluster genes based on similar expression profiles (R package, or maybe WGCNA package) and get strengths of association between genes
@@ -61,10 +60,10 @@ This gives you a html page of results.  I can parse the html to get the KEGG gen
 I completed this much last night, so I didn't have the data readily available beforehand.  I was using a perl curl script just because I'm more familiar with it. I can rewrite the section for R html processing. The perl script had a 3 sec delay between each query (so the website wouldn't cut me off because it thought I was a phishing attack).  However that meant that downloading 4495 html files at 3 second delays took around 3 hours. I let it run overnight. Afterwhich I needed to collect 4495 html files using the kegg ids to get the kegg pathways. This time I'm setting a 1 second delay.  But it will still take around an hour to collect. 
     
 
-
-=======
+<!-- comment
+#=======
 Load information from Twitter:
-```{r}
+#```{r}
 # Connect to Twitter
 # Online Directions: http://thinktostart.wordpress.com/2013/05/22/twitter-authentification-with-r/
 library(RCurl)
@@ -95,10 +94,9 @@ head(tweets.df)
 head(tweets.df$text)
 head(tweets.df$screenName)
 ```
->>>>>>> 6ba8c4806ef42dc05287909410f1147d713d335e
 
 Shiny basic example
-```{r}
+#```{r}
 library(shiny)
 runExample("01_hello")
 runExample()
@@ -109,3 +107,4 @@ runExample()
 
 runApp("shiny_app") # run the app by giving the folder name (and loc)
 ```
+-->
