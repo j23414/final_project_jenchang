@@ -61,6 +61,7 @@ This gives you a html page of results.  I can parse the html to get the KEGG gen
     
 I completed this much last night, so I didn't have the data readily available beforehand.  I was using a perl curl script just because I'm more familiar with it. I can rewrite the section for R html processing. The perl script had a 3 sec delay between each query (so the website will not cut me off because it thinks I'm a denial-of-service attack).  However that means that downloading 4495 html files at 3 second delays took around 3 hours. I let it run overnight. After which I needed to collect 4495 html more files using the kegg ids to get the kegg pathways. This time I'm setting a 1 second delay.  But it will still take around an hour to collect. 
 
+
 The pathways data can be collected from the following website:
 
 * http://www.kegg.jp/dbget-bin/www_bget?eco:b0002
