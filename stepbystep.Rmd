@@ -17,7 +17,7 @@ ggparcoord(data, columns=c(7:26))+geom_line()+labs(title="Expression Across All 
 WGCNA (Weighted Gene Co-Expression Network Analysis)
 installation of WGCNA
 ```{r,eval=FALSE}
-#install.packages(c("dynamicTreeCut","cluster","flashClust","Hmisc","reshape","foreach","doParallel"))
+install.packages(c("dynamicTreeCut","cluster","flashClust","Hmisc","reshape","foreach","doParallel"))
 source("http://bioconductor.org/biocLite.R")
 biocLite("impute")
 install.packages("WGCNA")
@@ -42,6 +42,7 @@ names(input)=data$Name
 # Choose soft threshold
 powers=c(c(1:10),seq(from=12,to=20,by=2))
 sft=pickSoftThreshold(input,powerVector=powers,verbose=5)
+
 sizeGrWindow(9,5)
 par(mfrow=c(1,2))
 cex1=0.9
@@ -55,21 +56,21 @@ text(sft$fitIndices[,1],sft$fitIndices[,5],labels=powers,cex=cex1,col="red")
 net=blockwiseModules(input,power=14,minModuleSize=30,reassignThreshold=0,mergeCutHeight=0.25,numericLabels=TRUE,pamRespectsDendro=FALSE,saveTOMs=TRUE,saveTOMFileBase="geneTOM",verbose=3)
 
 # create dendrogram
-sizeGRWindow(12,9)
+sizeGrWindow(12,9)
 mergedColors=labels2colors(net$colors)
 plotDendroAndColors(net$dendrograms[[1]],mergedColors[net$blockGenes[[1]]],"Module colors",dendroLabels=FALSE,hang=0.03,addGuide=TRUE,guideHang=0.05)
 
 unique(mergedColors)
 table(net$colors)
 
-adjacency = adjacency(input, power = 14);
-TOM = TOMsimilarity(adjacency); # takes some time
+#adjacency = adjacency(input, power = 14)
+#TOM = TOMsimilarity(adjacency) # takes some time
 ```
 
 Visualize the Clusters
-```{r}
+```{r, fig.height=6, fig.width=8}
 unique(mergedColors)
-sel.mod<-(mergedColors=="green")
+#sel.mod<-(mergedColors=="green")
 data$cluster=mergedColors
 
 # can't get facets to work with ggparcoord, must go back to ggplot
@@ -103,4 +104,16 @@ threshold = 0.02,
 nodeNames = genes,
 #altNodeNames = modGenes,
 nodeAttr = mergedColors);#[inModule]);
+```
+
+```{r, eval=FALSE}
+library(iplots)
+#JGR,rJava,JavaGD,iplots
+install.packages("plumbr") # allows functions to change data.frames. otherwise data.frames are ridgid
+library(cranvas)
+library(maps)
+library(plumbr)
+
+data.kegg<-read.table("data/eco_gene_cluster_des.psv",header=TRUE,sep="|",stringsAsFactors=FALSE)
+data.path<-read.table("data/eco_path_des.psv",header=TRUE,sep="|",stringsAsFactors=FALSE)
 ```
