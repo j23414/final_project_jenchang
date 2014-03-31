@@ -1,0 +1,90 @@
+Work
+========================================================
+Load Required Libraries
+```{r}
+install.packages("GGally")
+library(ggplot2)
+library(GGally)
+```
+
+E coli microarray data under different stress treatments: gene_median.csv
+```{r}
+data<-read.table("data/gene_median.csv", header=TRUE, stringsAsFactors=FALSE, sep=',')
+head(data)
+ggparcoord(data, columns=c(7:26))+geom_line()+labs(title="Expression Across All Treatments", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=270))
+```
+
+WGCNA (Weighted Gene Co-Expression Network Analysis)
+installation of WGCNA
+```{r}
+#install.packages(c("dynamicTreeCut","cluster","flashClust","Hmisc","reshape","foreach","doParallel"))
+source("http://bioconductor.org/biocLite.R")
+biocLite("impute")
+install.packages("WGCNA")
+
+# GO Enrichment analysis
+orgCodes = c("Hs", "Mm", "Rn", "Pf", "Sc", "Dm", "Bt", "Ce", "Cf", "Dr", "Gg"); 
+orgExtensions = c(rep(".eg", 4), ".sgd", rep(".eg", 6)); 
+packageNames = paste("org.", orgCodes, orgExtensions, ".db", sep=""); 
+
+biocLite(c("GO.db", "KEGG.db", "topGO", packageNames, "hgu133a.db", "hgu95av2.db", "annotate", "hgu133plus2.db", "SNPlocs.Hsapiens.dbSNP.20100427", "minet", "OrderedList"))
+```
+
+Run Clustering
+```{r}
+library(WGCNA)
+allowWGCNAThreads()
+
+# Prepare data for input
+input<-as.data.frame(t(data[,-c(1:6)]))
+names(input)=data$Name
+
+# Choose soft threshold
+powers=c(c(1:10),seq(from=12,to=20,by=2))
+sft=pickSoftThreshold(input,powerVector=powers,verbose=5)
+sizeGrWindow(9,5)
+par(mfrow=c(1,2))
+cex1=0.9
+plot(sft$fitIndices[,1],-sign(sft$fitIndices[,3])*sft$fitIndices[,2],
+xlab="Soft Threshold (power)", ylab="Scale Free Topology Model Fit, signed R^2", main=paste("Scale independence"))
+text(sft$fitIndices[,1],-sign(sft$fitIndices[,3])*sft$fitIndices[,2],
+labels=powers,cex=cex1,col="red"))
+abline(h=0.90,col="red")
+plot(sft$fitIndices[,1],sft$fitIndices[,5],xlab="Soft Threshold (power)", ylab="Mean Connectivity", type="n", main=paste("Mean connectivity"))
+text(sft$fitIndices[,1],sft$fitIndices[,5],labels=powers,cex=cex1,col="red")
+
+# Cluster into Modules
+net=blockwiseModules(input,power=14,minModuleSize=30,reassignThreshold=0,mergeCutHeight=0.25,numericLabels=TRUE,pamRespectsDendro=FALSE,saveTOMs=TRUE,saveTOMFileBase="geneTOM",verbose=3)
+
+# create dendrogram
+sizeGRWindow(12,9)
+mergedColors=labels2colors(net$colors)
+plotDendroAndColors(net$dendrograms[[1]],mergedColors[net$blockGenes[[1]]],"Module colors",dendroLabels=FALSE,hang=0.03,addGuide=TRUE,guideHang=0.05)
+
+unique(mergedColors)
+table(net$colors)
+
+adjacency = adjacency(input, power = 14);
+TOM = TOMsimilarity(adjacency); # takes some time
+```
+
+Export clusters for different software
+```{r}
+# Export to cytoscape
+module=c(unique(mergedColors))#"pink" # select module
+genes=names(input)
+inModule=(mergedColors==module)
+modGenes=genes[inModule]
+modTOM=TOM[inModule,inModule]
+dimnames(TOM) = list(genes,genes)
+dimnames(modTOM) = list(modGenes, modGenes)
+# Export the network into edge and node list files Cytoscape can read
+cyt = exportNetworkToCytoscape(TOM,
+edgeFile = paste("CytoscapeInput-edges-", paste(module, collapse="-"), ".txt", sep=""),
+nodeFile = paste("CytoscapeInput-nodes-", paste(module, collapse="-"), ".txt", sep=""),
+weighted = TRUE,
+threshold = 0.02,
+nodeNames = genes,
+#altNodeNames = modGenes,
+nodeAttr = mergedColors);#[inModule]);
+```
