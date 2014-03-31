@@ -2,7 +2,6 @@ Work
 ========================================================
 Load Required Libraries
 ```{r}
-install.packages("GGally")
 library(ggplot2)
 library(GGally)
 ```
@@ -11,12 +10,13 @@ E coli microarray data under different stress treatments: gene_median.csv
 ```{r}
 data<-read.table("data/gene_median.csv", header=TRUE, stringsAsFactors=FALSE, sep=',')
 head(data)
+dim(data)
 ggparcoord(data, columns=c(7:26))+geom_line()+labs(title="Expression Across All Treatments", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=270))
 ```
 
 WGCNA (Weighted Gene Co-Expression Network Analysis)
 installation of WGCNA
-```{r}
+```{r,eval=FALSE}
 #install.packages(c("dynamicTreeCut","cluster","flashClust","Hmisc","reshape","foreach","doParallel"))
 source("http://bioconductor.org/biocLite.R")
 biocLite("impute")
@@ -45,10 +45,8 @@ sft=pickSoftThreshold(input,powerVector=powers,verbose=5)
 sizeGrWindow(9,5)
 par(mfrow=c(1,2))
 cex1=0.9
-plot(sft$fitIndices[,1],-sign(sft$fitIndices[,3])*sft$fitIndices[,2],
-xlab="Soft Threshold (power)", ylab="Scale Free Topology Model Fit, signed R^2", main=paste("Scale independence"))
-text(sft$fitIndices[,1],-sign(sft$fitIndices[,3])*sft$fitIndices[,2],
-labels=powers,cex=cex1,col="red"))
+plot(sft$fitIndices[,1],-sign(sft$fitIndices[,3])*sft$fitIndices[,2], xlab="Soft Threshold (power)", ylab="Scale Free Topology Model Fit, signed R^2", main=paste("Scale independence"))
+text(sft$fitIndices[,1],-sign(sft$fitIndices[,3])*sft$fitIndices[,2], labels=powers,cex=cex1,col="red")
 abline(h=0.90,col="red")
 plot(sft$fitIndices[,1],sft$fitIndices[,5],xlab="Soft Threshold (power)", ylab="Mean Connectivity", type="n", main=paste("Mean connectivity"))
 text(sft$fitIndices[,1],sft$fitIndices[,5],labels=powers,cex=cex1,col="red")
@@ -87,7 +85,7 @@ ggplot(data.m, aes(x=variable,y=value,colour=cluster,group=Name))+geom_line()+fa
 ```
 
 Export clusters for different software
-```{r}
+```{r, eval=FALSE}
 # Export to cytoscape
 module=c(unique(mergedColors))#"pink" # select module
 genes=names(input)
