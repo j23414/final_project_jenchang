@@ -117,3 +117,18 @@ library(plumbr)
 data.kegg<-read.table("data/eco_gene_cluster_des.psv",header=TRUE,sep="|",stringsAsFactors=FALSE)
 data.path<-read.table("data/eco_path_des.psv",header=TRUE,sep="|",stringsAsFactors=FALSE)
 ```
+
+Shiny Section
+-------------
+* maybe allow the user to select different clusters
+* want to use the TOM distance matrix between each gene to generate a graph
+* user can adjust the edge weights to cut off
+* user can change node labels according to gene, keggid, description, cluster, etc
+
+```{r, eval=FALSE}
+install.packages("shiny")
+library("shiny")
+runExample("01_hello")
+
+runApp("my_app")
+```
