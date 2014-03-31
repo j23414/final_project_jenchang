@@ -68,6 +68,24 @@ adjacency = adjacency(input, power = 14);
 TOM = TOMsimilarity(adjacency); # takes some time
 ```
 
+Visualize the Clusters
+```{r}
+unique(mergedColors)
+sel.mod<-(mergedColors=="green")
+data$cluster=mergedColors
+
+# can't get facets to work with ggparcoord, must go back to ggplot
+ggparcoord(data, columns=c(7:26),groupColumn=27)+geom_line()+labs(title="Clustered Genes", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=270))
+
+# facet by cluster
+library(dplyr)
+library(plyr)
+library(reshape)
+data.m<-melt.data.frame(data[,c(1,7:27)], id.vars=c("Name","cluster"))
+
+ggplot(data.m, aes(x=variable,y=value,colour=cluster,group=Name))+geom_line()+facet_wrap(~cluster)+theme(axis.text.x=element_text(angle=270))+labs(title="Expression by Clustered Genes", x="Treatments", y="Expression")
+```
+
 Export clusters for different software
 ```{r}
 # Export to cytoscape
