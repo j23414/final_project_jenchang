@@ -121,7 +121,7 @@ data.path<-read.table("data/eco_path_des.psv",header=TRUE,sep="|",stringsAsFacto
 Shiny Section
 -------------
 * maybe allow the user to select different clusters
-* want to use the TOM distance matrix between each gene to generate a graph
+* want to use the TOM distance matrix between each gene to generate a graph (as in nodes and edge graph)
 * user can adjust the edge weights to cut off
 * user can change node labels according to gene, keggid, description, cluster, etc
 
@@ -129,6 +129,16 @@ Shiny Section
 install.packages("shiny")
 library("shiny")
 runExample("01_hello")
+runExample("02_text")
+runExample("03_reactivity")
+runExample("04_mpg")
+runExample("05_sliders")
+runExample("06_tabsets")
+runExample("07_widgets")
+runExample("08_html")
+runExample("09_html")
+runExample("10_download")
+runExample("11_timer")
 
 runApp("my_app")
 ```
