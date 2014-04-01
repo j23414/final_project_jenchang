@@ -13,7 +13,10 @@ dim(data)
 head(data)
 summary(data)
 summary(subset(data,SD1==-1)) # 40 entries where the expressions are -1
-ggparcoord(data, columns=c(7:26))+geom_line()+labs(title="Expression Across All Treatments", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=270))
+
+data<-subset(data,SD1>=0) # dropped anything that had -1 accross all values
+data<-subset(data,select=c(Name:Probes,C.2:PH1,SD1:UV2)) # Drop C1 and PH2, (bubble on the array)
+ggparcoord(data, columns=c(7:24))+geom_line()+labs(title="Expression Across All Treatments", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=270))
 ```
 
 Could normalize by a particular gene
@@ -53,7 +56,7 @@ input<-as.data.frame(t(data[,-c(1:6)]))
 names(input)=data$Name
 
 # Choose soft threshold
-powers=c(c(1:10),seq(from=12,to=20,by=2))
+powers=c(c(1:10),seq(from=12,to=30,by=2))
 sft=pickSoftThreshold(input,powerVector=powers,verbose=5)
 
 sizeGrWindow(9,5)
@@ -66,7 +69,7 @@ plot(sft$fitIndices[,1],sft$fitIndices[,5],xlab="Soft Threshold (power)", ylab="
 text(sft$fitIndices[,1],sft$fitIndices[,5],labels=powers,cex=cex1,col="red")
 
 # Cluster into Modules
-net=blockwiseModules(input,power=14,minModuleSize=30,reassignThreshold=0,mergeCutHeight=0.25,numericLabels=TRUE,pamRespectsDendro=FALSE,saveTOMs=TRUE,saveTOMFileBase="geneTOM",verbose=3)
+net=blockwiseModules(input,power=7,minModuleSize=30,reassignThreshold=0,mergeCutHeight=0.25,numericLabels=TRUE,pamRespectsDendro=FALSE,saveTOMs=TRUE,saveTOMFileBase="geneTOM",verbose=3)
 
 # create dendrogram
 sizeGrWindow(12,9)
@@ -76,8 +79,10 @@ plotDendroAndColors(net$dendrograms[[1]],mergedColors[net$blockGenes[[1]]],"Modu
 unique(mergedColors)
 table(net$colors)
 
-#adjacency = adjacency(input, power = 14)
-#TOM = TOMsimilarity(adjacency) # takes some time
+# Creates the adjacency matrix for the genes
+adjacency = adjacency(input, power = 14)
+TOM = TOMsimilarity(adjacency) # takes some time
+dimnames(TOM) = list(data$Name,data$Name)
 ```
 
 Visualize the Clusters
@@ -87,13 +92,13 @@ unique(mergedColors)
 data$cluster=mergedColors
 
 # can't get facets to work with ggparcoord, must go back to ggplot
-ggparcoord(data, columns=c(7:26),groupColumn=27)+geom_line()+labs(title="Clustered Genes", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=270))
+#ggparcoord(data, columns=c(7:24),groupColumn=25)+geom_line()+labs(title="Clustered Genes", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=270))
 
 # facet by cluster
-library(dplyr)
-library(plyr)
+#library(dplyr)
+#library(plyr)
 library(reshape)
-data.m<-melt.data.frame(data[,c(1,7:27)], id.vars=c("Name","cluster"))
+data.m<-melt.data.frame(data[,c(1,7:25)], id.vars=c("Name","cluster"))
 
 ggplot(data.m, aes(x=variable,y=value,colour=cluster,group=Name))+geom_line()+facet_wrap(~cluster)+theme(axis.text.x=element_text(angle=270))+labs(title="Expression by Clustered Genes", x="Treatments", y="Expression")
 ```
@@ -129,6 +134,25 @@ library(plumbr)
 
 data.kegg<-read.table("data/eco_gene_cluster_des.psv",header=TRUE,sep="|",stringsAsFactors=FALSE)
 data.path<-read.table("data/eco_path_des.psv",header=TRUE,sep="|",stringsAsFactors=FALSE)
+```
+
+Drawing network graphs with R/Bioconductor (graphviz)
+```{r, eval=FALSE}
+source("http://www.bioconductor.org/biocLite.R")
+biocLite("Rgraphviz")
+library("Rgraphviz")
+set.seed(123)
+V<-letters[1:10]
+M<-1:4
+g1<-randomGraph(V,M,0.2)
+plot(g1)
+plot(g1,"neato")
+rEG <- new("graphNEL", nodes=c("A", "B"), edgemode="undirected")
+rEG <- addEdge("A", "B", rEG, 5)
+#rEG <- addEdge("A", "B", rEG, 1)
+
+plot(rEG)
+g1<-new("graphNEL",nodes=data$Name,edgemode="undirected")
 ```
 
 Shiny Section
