@@ -9,9 +9,22 @@ library(GGally)
 E coli microarray data under different stress treatments: gene_median.csv
 ```{r}
 data<-read.table("data/gene_median.csv", header=TRUE, stringsAsFactors=FALSE, sep=',')
-head(data)
 dim(data)
+head(data)
+summary(data)
+summary(subset(data,SD1==-1)) # 40 entries where the expressions are -1
 ggparcoord(data, columns=c(7:26))+geom_line()+labs(title="Expression Across All Treatments", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=270))
+```
+
+Could normalize by a particular gene
+```{r,eval=FALSE}
+normalize_by_gene<-function(data,i){
+  base<-data[i,]
+  data.out<-data-base
+  return(data.out)
+}
+
+d<-normalize_by_gene(data[,7:26],1)
 ```
 
 WGCNA (Weighted Gene Co-Expression Network Analysis)
