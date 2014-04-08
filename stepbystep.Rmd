@@ -200,6 +200,31 @@ runExample("11_timer")
 runApp("my_app")
 ```
 
+Let the user select a module and produce a word cloud from gene ontology enrichment of the module.
 ```{r, eval=FALSE}
-install.packages("wordcloud")
+#install.packages("wordcloud")
+library(wordcloud)
+wordcloud(c(letters, LETTERS, 0:9), seq(1, 1000, len = 62)) # example
+
+#install.packages("tm")
+library(tm)
+lords = Corpus(DirSource("data/temp")) # load Corpus
+inspect(lords) 
+lords <- tm_map(lords,stripWhitespace)
+lords <- tm_map(lords,tolower)
+lords <- tm_map(lords,removeWords,stopwords("english"))
+lords <- tm_map(lords,stemDocument)
+# removeNumbers, removePunctuation, removeWords,"nobel"
+inspect(lords)
+
+par(mar=rep(2,4))
+wordcloud(lords,scale=c(5,0.5),max.words=100,random.order=FALSE,rot.per=0.35,use.r.layout=FALSE,colors=brewer.pal(8,"Dark2"))
+
+# WGCNA GO Enrichment or I can use gene description or pathway description
+annot <- read.csv(file="GeneAnnotation.csv")
+probes=names(input)
+probes2annot=match(probes,annot$substanceBXH)
+allLLIDs = annot$LocusLinkID[probes2annot]
+intModules=c("brown","red","pink")
+
 ```
