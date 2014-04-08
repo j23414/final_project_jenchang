@@ -199,3 +199,7 @@ runExample("11_timer")
 
 runApp("my_app")
 ```
+
+```{r, eval=FALSE}
+install.packages("wordcloud")
+```
