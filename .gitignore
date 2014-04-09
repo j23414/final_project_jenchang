@@ -4,7 +4,7 @@
 final_project_jenchang.Rproj
 script.md
 script.html
-data
+data2
 geneTOM-block.1.RData
 stepbystep.html
 stepbystep.md
@@ -12,3 +12,7 @@ figure
 README.html
 notes.txt
 output
+draft_report.html
+draft_report.md
+CytoscapeInput-edges-turquoise-blue-green-brown-red-yellow-pink-black-grey-magenta.txt
+CytoscapeInput-nodes-turquoise-blue-green-brown-red-yellow-pink-black-grey-magenta.txt
