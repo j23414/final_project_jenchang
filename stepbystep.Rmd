@@ -198,6 +198,8 @@ runExample("10_download")
 runExample("11_timer")
 
 runApp("my_app")
+runApp("data/wc_app")
+runApp("data/lb_app")
 ```
 
 Let the user select a module and produce a word cloud from gene ontology enrichment of the module.
@@ -209,13 +211,15 @@ wordcloud(c(letters, LETTERS, 0:9), seq(1, 1000, len = 62)) # example
 #install.packages("tm")
 library(tm)
 lords = Corpus(DirSource("data/temp")) # load Corpus
-inspect(lords) 
+#inspect(lords) 
 lords <- tm_map(lords,stripWhitespace)
 lords <- tm_map(lords,tolower)
 lords <- tm_map(lords,removeWords,stopwords("english"))
 lords <- tm_map(lords,stemDocument)
+words<-c("lord","noble","will")
+lords <- tm_map(lords,removeWords,words)
 # removeNumbers, removePunctuation, removeWords,"nobel"
-inspect(lords)
+
 
 par(mar=rep(2,4))
 wordcloud(lords,scale=c(5,0.5),max.words=100,random.order=FALSE,rot.per=0.35,use.r.layout=FALSE,colors=brewer.pal(8,"Dark2"))

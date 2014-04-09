@@ -62,6 +62,7 @@ shinyUI(fluidPage(
         tabPanel("Summary",verbatimTextOutput("summary_2")),
         tabPanel("Table",tableOutput("table")),
         tabPanel("Uploaded File",tableOutput('contents'))
+        
       )
     )
     
