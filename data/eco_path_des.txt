@@ -1,3 +1,4 @@
+eco_id path_id pathway_description
 eco:b0002 eco00260 Glycine,_serine_and_threonine_metabolism
 eco:b0002 eco00270 Cysteine_and_methionine_metabolism
 eco:b0002 eco00300 Lysine_biosynthesis

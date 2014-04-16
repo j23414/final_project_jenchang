@@ -1,3 +1,4 @@
+eco_id gene gene_description
 eco:b4634 aaaD pseudogene
 eco:b4693 aaaE pseudogene
 eco:b3241 aaeA p-hydroxybenzoic_acid_efflux_system_component;_K15548_p-hydroxybenzoic_acid_efflux_pump_subunit_AaeA
