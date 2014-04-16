@@ -92,14 +92,13 @@ net=blockwiseModules(input,power=7,minModuleSize=30,reassignThreshold=0,mergeCut
 sizeGrWindow(12,9)
 mergedColors=labels2colors(net$colors)
 plotDendroAndColors(net$dendrograms[[1]],mergedColors[net$blockGenes[[1]]],"Module colors",dendroLabels=FALSE,hang=0.03,addGuide=TRUE,guideHang=0.05)
-
-table(net$colors)
+data$cluster=mergedColors
+table(data$cluster)
 ```
 Each module is given a color name.  The table above shows the number of genes clustered into each module. The cluster 0 contain genes actually contains genes that did not fit in any other cluster. So really there are 9 clusters and 125 unclustered genes
 
 Viewing the transcription levels in each cluster
 ```{r}
-data$cluster=mergedColors
 # can't get facets to work with ggparcoord, must go back to ggplot
 ggparcoord(data, columns=c(2:19),groupColumn=20)+geom_line()+labs(title="Clustered Genes", x="Treatments", y="Expression")+theme(axis.text.x=element_text(angle=300,hjust=0))
 
@@ -150,12 +149,21 @@ Replace the keywords=thrA with whichever gene you are searching for.  I focused 
 
 This gives you a html page of results.  I can parse the html to get the KEGG gene id and the gene description.
 
-    KEGG_id gene description
-    eco:b4634 aaaD pseudogene
-    eco:b0260 mmuP CP4-6_prophage;_predicted_S-methylmethionine_transporter;_K03293_amino_acid_transporter,_AAT_family
-    eco:b0715 abrB regulator_of_aidB_expression;_inner_membrane_protein;_K07120
+```{r}
+kegg.genes<-read.table(file="data/id_gene_des.txt",header=TRUE,quote = "",sep=" ",stringsAsFactors=FALSE)
+kegg.genes$gene_description<-gsub("_"," ",kegg.genes$gene_description)
+kegg.genes$gene_description<-gsub(";"," ",kegg.genes$gene_description)
+kegg.genes$gene_description<-gsub(","," ",kegg.genes$gene_description)
+kegg.genes$short_description <-substr(kegg.genes$gene_description,1,50)
+head(kegg.genes[,c(1,2,4)])
+```
 
 ```{r}
+library(XML)
+url <- "http://www.kegg.jp/dbget-bin/www_bfind_sub?max_hit=1000&dbkey=eco&mode=bfind&keywords=thrA"
+doc<-htmlParse(url)
+body<-xmlChildren(root)[[2]]
+
 # I'm going to try to find a way to do this in R instead of perl scripting and include the code here. Regardless getting information for over 4000 genes takes a few hours.  Must put in 1 second delays between each html page reteival or can be cut off as a denial-of-service attack.
 ```
 
@@ -164,6 +172,12 @@ The pathways data can be collected from the following website:
 * http://www.kegg.jp/dbget-bin/www_bget?eco:b0002
 
 Where "eco:b0002" can be replaced by whichever KEGG gene id you're looking at.  Then pull out the Pathways entry in the table. The Pathways entry contains the KEGG pathway id and the Pathway name.
+
+```{r}
+kegg.paths<-read.table(file="data/eco_path_des.txt",header=TRUE,quote = "",sep=" ",stringsAsFactors=FALSE)
+kegg.paths$pathway_description<-gsub("_"," ",kegg.paths$pathway_description)
+head(kegg.paths)
+```
 
 I combined each kegg pathway file into one graph. The pathways graph is different from the WGCNA generated graph because it includes compounds. (e.g. glucose, ATP, water, etc). An example of a biological pathway is Glycolysis. It would have a node for glucose (compound) which would connect to hexakinase (enzyme) which would connect to glucose-6-phosphate (compound) which would connect to phosphoglucose isomerase (enzyme) etc.  Compounds and E coli genes not in the original microarray data are colored white.  All the other nodes are colored by cluster. I filtered out any nodes with no edges. (Sometimes KEGG merely groups some genes together as components of an enzyme but then doesn't connect it with any other enzymes/compounds.  I'm trying to figure out why. Still exploring the data.) I was hoping that genes in the same cluster would be near each other in the pathway but that wasn't the case. 
 
@@ -178,9 +192,31 @@ While I'm still working with the KEGG pathway graph, I may explore a different d
 Example word cloud below.
 
 ```{r}
-# word cloud example
+# text mining example
+library(tm)
 library(wordcloud)
-wordcloud(c(letters, LETTERS, 0:9), seq(1, 1000, len = 62))
+
+# prepare the data
+m1 <- merge(data, kegg.genes, by.x = "Name", by.y = "gene")
+g_c_d<-m1[,c(1,20,22)]
+write.csv(g_c_d,file="data/gen_cluster_des.txt", row.names=FALSE)
+
+current_mod<-subset(g_c_d, cluster=="green")
+
+wc.input<-paste(current_mod$gene_description,collapse="")
+#head(wc.input)
+path_words<-Corpus(VectorSource(wc.input))
+path_words <- tm_map(path_words,stripWhitespace)
+path_words <- tm_map(path_words,tolower)
+path_words <- tm_map(path_words,removeWords,stopwords("english"))
+#path_words <- tm_map(path_words,stemDocument)
+ #inspect(path_words) 
+# word cloud example
+
+par(mar=rep(2,4))
+wordcloud(path_words,scale=c(5,0.5),max.words=100,random.order=FALSE,rot.per=0.35,use.r.layout=FALSE,colors=brewer.pal(8,"Dark2"))
+
+#wordcloud(c(letters, LETTERS, 0:9), seq(1, 1000, len = 62))
 ```
 
 Shiny App (not running right now, eval=false)
