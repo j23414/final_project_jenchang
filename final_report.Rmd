@@ -295,7 +295,32 @@ I combined each kegg pathway file into one graph. The pathways graph is differen
 
 <img src="img/pathways.jpg" alt="Gene Clusters overlayed on KEGG Biological Pathways" />
 
-Part of the problem is the fact that many of the genes in the microarray data was not represented in the pathways data. (336 genes had no KEGG id. 2604 genes with KEGG ids had no KEGG pathways data. There were 4454 genes total. Therefore at max, there could be 1514 genes in the KEGG pathways graph.)
+Part of the problem is the fact that many of the genes in the microarray data was not represented in the pathways data. (336 genes had no KEGG id. 2604 genes with KEGG ids had no KEGG pathways data. There were 4454 genes total. Therefore at max, there could be 1514 genes in the KEGG pathways graph.)  It's possible that many of the genes-products are gene regulatory elements. They do not deal with compounds but act as transcription factors. I would need to incorporate gene regulatory networks.  The majority of the biological pathways data on KEGG focuses on metabolism.
+
+I tried removing any of the compounds (chemical intermediates) and connecting its neighbors.  Therefore the network will be from enzyme to enzyme (gene to gene), instead of enzyme to compound to enzyme. 
+
+<img src="img/no_cpd.jpg" alt="Gene Clusters overlayed on KEGG Biological Pathways" />
+
+The white nodes are E coli enzymes in KEGG that were not in our microarray.  The blue, turquoise, and yellow clusters have many genes and seem to be everywhere.  Of the clusters that have few genes, magenta does seem to have a group of five genes that connect to one another.  If you look at the other clusters with few genes; red, green, and pink are spread out with no two connecting the same color. I decided to focus on magenta to try to locate the pathway that the 5 genes participate in. The five genes are aceA, acnA, gltA, glcB, aceB.  
+
+```
+eco:b4015 aceA isocitrate_lyase_(EC:4.1.3.1);_K01637_isocitrate_lyase_[EC:4.1.3.1]
+eco:b1276 acnA aconitate_hydratase_1_(EC:4.2.1.3);_K01681_aconitate_hydratase_[EC:4.2.1.3]
+eco:b0720 gltA citrate_synthase_(EC:2.3.3.1);_K01647_citrate_synthase_[EC:2.3.3.1]
+eco:b2976 glcB malate_synthase_G_(EC:2.3.3.9);_K01638_malate_synthase_[EC:2.3.3.9]
+eco:b4014 aceB malate_synthase_A_(EC:2.3.3.9);_K01638_malate_synthase_[EC:2.3.3.9]
+```
+
+All of them shared the following pathways:
+* eco01200 Carbon metabolism
+* eco00630 Glyoxylate and dicarboxylate metabolism
+* eco01100 Metabolic pathways
+* eco01120 Microbial metabolism in diverse environments (only these 5 from magenta in this pathway)
+
+Go to following link to see the five highlighted in Red on the Microbial metabolism in diverse environments pathway. 
+http://www.kegg.jp/kegg-bin/show_pathway?eco01120+b0720+b1276+b2976+b4014+b4015
+
+The enzymes are just part of the cytric acid cycle.
 
 Maybe Go in a Different Direction...
 -----------------------
@@ -311,7 +336,7 @@ library(wordcloud)
 # prepare the data
 m1 <- merge(data, eco.genes, by.x = "Name", by.y = "name")
 g_c_d<-m1[,c(1,20,22)]
-#write.csv(g_c_d,file="data/gen_cluster_des.txt", row.names=FALSE)
+write.csv(g_c_d,file="data/gen_cluster_des.txt", row.names=FALSE)
 
 # function to plot wordcloud for a module
 plot_mod_wordcloud<-function(mod){
@@ -340,7 +365,10 @@ plot_mod_wordcloud("pink")
 plot_mod_wordcloud("black")
 ```
 
-Shiny App (not running right now, eval=false)
+Shiny App 
+---------------
+Really basic Shiny app. User selects cluster(module) and shiny app displays word cloud. Also displays table of values below and the user can select how many records to show. This is extremely basic so not very useful.
+The app works. It does not execute during knitr because eval=false
 ```{r,eval=FALSE}
 # Shiny app
 library(shiny)
