@@ -10,10 +10,13 @@ shinyServer(function(input,output){
     input$in2
   })
   
-  output$outplot<-renderPlot({
+  output$outplot<-renderPlot(function(){
     #x<-rnorm(100,mean=50,sd=40)
     #hist(x,breaks=input$in4,col='darkgray',border='white')
-    wc.mod<-subset(g_c_d,cluster="magenta")
+    
+    # blue, turquoise, yellow, black, green, brown, red, pink, magenta, grey
+    input$in3="grey"
+    wc.mod<-subset(g_c_d,cluster=input$in3)
     wc.text<-paste(wc.mod$gene_description,collapse="")
     words<-Corpus(VectorSource(wc.text))
     words <- tm_map(words,stripWhitespace)
