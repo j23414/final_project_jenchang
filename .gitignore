@@ -8,3 +8,7 @@ figure
 local
 geneTOM-block.1.RData
 *figure
+cache
+output
+data/temp
+wc_app
